@@ -47,6 +47,7 @@ keytool -genkeypair \
   -ext KeyUsage="keyCertSign" \
   -ext BasicConstraints:"critical=ca:true" \
   -validity 9999
+
 #export the ca cert so we can add it to the trust stores
 keytool -exportcert \
   -alias scoreboardca \
@@ -55,6 +56,7 @@ keytool -exportcert \
   -keystore keystore/cakey.jks \
   -file keystore/scoreboardca.crt \
   -rfc
+
 #create the keypair we plan to use for our ssl/jwt signing
 keytool -genkeypair \
   -alias scoreboardappkey \
@@ -65,6 +67,7 @@ keytool -genkeypair \
   -sigalg SHA256withRSA \
   -dname "CN=${IP},OU=Local Certificate Authority, O=NA, L=Earth, ST=Happy, C=CA" \
   -validity 365
+
 #create the signing request for the app key
 keytool -certreq \
   -alias scoreboardappkey \
@@ -72,6 +75,7 @@ keytool -certreq \
   -storepass secret \
   -keystore keystore/key.jks \
   -file keystore/appsignreq.csr
+
 #sign the cert with the ca
 keytool -gencert \
   -alias scoreboardca \
@@ -80,6 +84,7 @@ keytool -gencert \
   -keystore keystore/cakey.jks \
   -infile keystore/appsignreq.csr \
   -outfile keystore/app.cer
+
 #import the ca cert
 keytool -importcert \
   -alias scoreboardca \
@@ -88,6 +93,7 @@ keytool -importcert \
   -keystore keystore/key.jks \
   -noprompt \
   -file keystore/scoreboardca.crt
+
 #import the signed cert
 keytool -importcert \
   -alias scoreboardappkey \
@@ -96,6 +102,7 @@ keytool -importcert \
   -keystore keystore/key.jks \
   -noprompt \
   -file keystore/app.cer
+
 #change the alias of the signed cert
 keytool -changealias \
   -alias scoreboardappkey \
@@ -103,33 +110,37 @@ keytool -changealias \
   -storepass secret \
   -keypass secret \
   -keystore keystore/key.jks
+
 #export the signed cert in pem format for proxy to use
-keytool -exportcert \
-  -alias default \
-  -storepass secret \
-  -keypass secret \
-  -keystore keystore/key.jks \
-  -file keystore/app.pem \
-  -rfc
+#keytool -exportcert \
+#  -alias default \
+#  -storepass secret \
+#  -keypass secret \
+#  -keystore keystore/key.jks \
+#  -file keystore/app.pem \
+#  -rfc
+
 #export the private key in pem format for proxy to use
-keytool -importkeystore \
-  -srckeystore keystore/key.jks \
-  -destkeystore keystore/key.p12 \
-  -srcstoretype jks \
-  -deststoretype pkcs12 \
-  -srcstorepass secret \
-  -deststorepass secret \
-  -srckeypass secret \
-  -destkeypass secret \
-  -srcalias default
-openssl pkcs12 \
-  -in keystore/key.p12 \
-  -out keystore/private.pem \
-  -nocerts \
-  -nodes \
-  -password pass:secret
+#keytool -importkeystore \
+#  -srckeystore keystore/key.jks \
+#  -destkeystore keystore/key.p12 \
+#  -srcstoretype jks \
+#  -deststoretype pkcs12 \
+#  -srcstorepass secret \
+#  -deststorepass secret \
+#  -srckeypass secret \
+#  -destkeypass secret \
+#  -srcalias default
+#openssl pkcs12 \
+#  -in keystore/key.p12 \
+#  -out keystore/private.pem \
+#  -nocerts \
+#  -nodes \
+#  -password pass:secret
+
 #concat the public and private key for haproxy
-cat keystore/app.pem keystore/private.pem > keystore/proxy.pem
+#cat keystore/app.pem keystore/private.pem > keystore/proxy.pem
+
 #add the cacert to the truststore
 keytool -importcert \
   -alias scoreboardca \
@@ -139,11 +150,13 @@ keytool -importcert \
   -noprompt \
   -trustcacerts \
   -file keystore/scoreboardca.crt
+
 #add all jvm cacerts to the truststore.
 keytool -importkeystore \
   -srckeystore $JAVA_HOME/lib/security/cacerts \
   -destkeystore keystore/truststore.jks \
   -srcstorepass changeit \
   -deststorepass truststore
+
 #clean up the public cert..
 rm -f keystore/public.crt
