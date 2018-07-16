@@ -158,5 +158,6 @@ keytool -importkeystore \
   -srcstorepass changeit \
   -deststorepass truststore
 
-#clean up the public cert..
-rm -f keystore/public.crt
+#clean up
+#rm -f keystore/public.crt 
+rm -f keystore/*.crt keystore/*.csr keystore/*.cer
