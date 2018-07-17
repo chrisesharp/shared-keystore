@@ -1,7 +1,7 @@
 SERVICE=keystore
 CHART = chart/$(SERVICE)
 
-all: docker deploy
+all: docker install
 
 .PHONY: docker
 docker:
