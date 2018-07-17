@@ -4,7 +4,7 @@ metadata:
   name: keystore-pv-claim
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadOnlyMany
   resources:
     requests:
-      storage: 1Gi
+      storage: 1Mi

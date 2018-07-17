@@ -7,15 +7,11 @@ all: docker deploy
 docker:
 	docker build -t chrisesharp/keygen .
 
-.PHONY: deploy
-deploy:
+.PHONY: install
+install:
 	helm dependency build $(CHART)
 	helm upgrade --wait --install $(SERVICE) $(CHART)
 	
-.PHONY: clean
-clean:
-	helm delete --purge $(SERVICE)
-	
 .PHONY: remove
 remove:
-	helm delete --purge login $(SERVICE)
+	helm delete --purge $(SERVICE)
